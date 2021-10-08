@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "Running pre-push git hook to upload files to Aridhia"
+python .git/hooks/ApiCommunicator.py --path_to_file "path_to_your_repo_from_your_computer_home"
