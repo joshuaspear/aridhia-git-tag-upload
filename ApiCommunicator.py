@@ -3,6 +3,7 @@ import logging
 from subprocess import call
 import argparse
 import json
+import shutil
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -34,14 +35,32 @@ class ApiCommunicator:
         call(call_list)
         return True
 
+def gen_zip_file(zip_file:str, dir_loc:str):
+    shutil.make_archive(zip_file, 'zip', dir_loc)
+    os.sync()
+    if not os.path.exists("{}.zip".format(zip_file)):
+        raise Exception("Zip file not created correctly")
+    return True
 
 def main(path_to_file, recurse):
     logging.info("Building ApiCommunicator")
     token = json.load(open(".aridhia_secret.json"))["az_copy_token"]
-    api_com = ApiCommunicator(path_to_file, token, recurse)
+    zip_file = os.path.join(
+        os.path.dirname(path_to_file), 
+        "UPLOAD_{}".format(
+            os.path.basename(path_to_file)))
+    gen_zip_file(zip_file=zip_file, dir_loc=path_to_file)
+    fill_zip_nm = "{}.zip".format(zip_file)
+    api_com = ApiCommunicator(fill_zip_nm, token, recurse)
     logging.info("Building uploading file")
     api_com.upload_file()
-
+    if os.path.isfile(fill_zip_nm):
+        os.remove(fill_zip_nm)
+    else:
+        Exception("Error: %s file not found" % fill_zip_nm)
+    os.sync()
+    if not os.path.exists(fill_zip_nm):
+        raise Exception("Zip file not removed correctly")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
