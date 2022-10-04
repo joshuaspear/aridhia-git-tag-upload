@@ -59,7 +59,7 @@ def main(path_to_file, recurse):
     else:
         Exception("Error: %s file not found" % fill_zip_nm)
     os.sync()
-    if not os.path.exists(fill_zip_nm):
+    if os.path.exists(fill_zip_nm):
         raise Exception("Zip file not removed correctly")
 
 if __name__ == "__main__":
